@@ -1,0 +1,38 @@
+function gradual_fade_out_script() {
+    ?>
+    <script>
+        (function fadeOutBodyOverMinutes() {
+            const totalMinutes = 20000; // Duration in minutes
+            const totalMilliseconds = totalMinutes * 60 * 1000; // Convert minutes to milliseconds
+
+            const startTimeKey = "fadeOutStartTime"; // Local storage key to track start time
+            const currentTime = Date.now(); // Current timestamp in milliseconds
+
+            // Retrieve or initialize the fade-out start time
+            let startTime = localStorage.getItem(startTimeKey);
+            if (!startTime) {
+                startTime = currentTime;
+                localStorage.setItem(startTimeKey, startTime);
+            } else {
+                startTime = parseInt(startTime, 10); // Ensure it's a number
+            }
+
+            // Calculate elapsed time and opacity
+            const elapsedTime = currentTime - startTime;
+            const opacity = Math.max(0, 1 - elapsedTime / totalMilliseconds);
+
+            // Apply the opacity to the body
+            document.body.style.transition = "opacity 0.1s linear"; // Smooth transitions
+            document.body.style.opacity = opacity.toFixed(4);
+
+            // Stop further updates when opacity reaches 0
+            if (opacity > 0) {
+                requestAnimationFrame(fadeOutBodyOverMinutes); // Continuously update opacity
+            } else {
+                document.body.style.opacity = 0; // Ensure opacity is 0
+            }
+        })();
+    </script>
+    <?php
+}
+add_action('wp_footer', 'gradual_fade_out_script');
